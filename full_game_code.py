@@ -19,14 +19,9 @@ clock = pygame.time.Clock()
 # ---------------------------
 # Initialize global variables
 
+#TEXT FONTS AND SIZES
 score_font = pygame.font.SysFont('Press Start 2P', 50)
 lose_font = pygame.font.SysFont('Press Start 2P', 100)
-
-framecount = 0
-x_count = [] #empty list for removeing x's or squares when fruits are missed, player dies when len(x_count) == 3 or when hearts have all gone
-
-hearts = 3
-
 
 #COORDINATES: sets of predetermined x and y coords for each fruit, y intervals of -300
 watermelon_coords = [[140, 0], [220, -400], [450, -1500]]
@@ -38,29 +33,29 @@ watermelon_radius = 50
 cantaloupe_radius = 40
 orange_radius = 25
 kiwi_radius = 19
-bomb_radius =30
+bomb_radius = 30
 fruit_speed = 4
+framecount = 0
+hearts = 3
 score = 0
 
 # ---------------------------
 
 running = True
 while running:
-    # get events from the user
     for event in pygame.event.get():
-        # quit the game if user clicks the close button or presses escape key
         if event.type == QUIT:
             running = False
         elif event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 running = False
-## Pedram (SCORE COUNTER) Credit - inspired by SiggyWithACiggy and Mr.Gallo ##
+## Pedram (SCORE COUNTER) Credit - inspired by SiggyWithACiggy from discord and Mr.Gallo ##
         # check if user clicked the mouse
         elif event.type == MOUSEBUTTONDOWN:
             # get the position of the mouse click
             mouse_x, mouse_y = pygame.mouse.get_pos()
-
-            #check if the mouse click hits any fruit
+            
+            #check if the mouse click hits the watermelon
             for watermelon in watermelon_coords:
                 # calculate the distance between mouse click and fruit
                 watermelon_dist = math.sqrt((mouse_x - watermelon[0])**2 + (mouse_y - watermelon[1])**2)
@@ -69,7 +64,7 @@ while running:
                     watermelon[1] = HEIGHT + 30 # teleports watermelon off-screen to respawn again
                     break
                     
-            #check if the mouse click hits any fruit
+            #check if the mouse click hits the cantaloupe
             for cantaloupe in cantaloupe_coords:
                 # calculate the distance between mouse click and fruit
                 cantaloupe_dist = math.sqrt((mouse_x - cantaloupe[0])**2 + (mouse_y - cantaloupe[1])**2)
@@ -78,7 +73,7 @@ while running:
                     cantaloupe[1] = HEIGHT + 30 # teleports cantaloupe off-screen to respawn again
                     break 
                     
-            #check if the mouse click hits any fruit
+            #check if the mouse click hits the orange
             for orange in orange_coords: 
                 # calculate the distance between mouse click and fruit
                 orange_dist = math.sqrt((mouse_x - orange[0])**2 + (mouse_y - (orange[1]- 20))**2)
@@ -87,7 +82,7 @@ while running:
                     orange[1] = HEIGHT + 30 # teleports orange off-screen to respawn again
                     break 
                     
-            #check if the mouse click hits any fruit
+            #check if the mouse click hits the kiwi
             for kiwi in kiwi_coords: 
                 # calculate the distance between mouse click and fruit
                 kiwi_dist = math.sqrt((mouse_x - kiwi[0])**2 + (mouse_y - (kiwi[1] - 20))**2)
@@ -96,7 +91,7 @@ while running:
                     kiwi[1] = HEIGHT + 30 # teleports kiwi off-screen to respawn again
                     break 
                     
-            #check if the mouse click hits any fruit
+            #check if the mouse click hits the bomb
             for bomb in bomb_coords:
                 # calculate the distance between mouse click and bomb
                 bomb_dist = math.sqrt((mouse_x - bomb[0])**2 + (mouse_y - bomb[1])**2)
@@ -176,7 +171,20 @@ while running:
             pygame.draw.circle(screen, (0,0,0), (bomb_coords[0], bomb_coords[1]), bomb_radius)
             pygame.draw.rect(screen,(222,184,135),(bomb_coords[0]-2,bomb_coords[1]-33,3,15))
             pygame.draw.circle(screen, (255,255,0), (bomb_coords[0], bomb_coords[1]-30), bomb_radius-23)
+            
+    ## Pedram (FUNCTION FOR DRAWING THE HEARTS) ##
+   
+    def draw_3_hearts():
+        pygame.draw.circle(screen, (255, 10, 10), (WIDTH / 1.16, 28), 25)
+        pygame.draw.circle(screen, (255, 10, 10), (WIDTH / 1.16 - 60, 28), 25)
+        pygame.draw.circle(screen, (255, 10, 10), (WIDTH / 1.16 + 60, 28), 25)
 
+    def draw_2_hearts():
+        pygame.draw.circle(screen, (255, 10, 10), (WIDTH / 1.16, 28), 25)
+        pygame.draw.circle(screen, (255, 10, 10), (WIDTH / 1.16 + 60, 28), 25)
+
+    def draw_1_heart():
+        pygame.draw.circle(screen, (255, 10, 10), (WIDTH / 1.16 + 60, 28), 25)
 
     #DRAWING game background
     
@@ -196,7 +204,7 @@ while running:
     for bomb in bomb_coords:
         draw_bomb(bomb)
 
-    #FALLING FRUITS: For each fruit/obj in list, adds varying values for different speeds
+    #FALLING FRUITS: For each fruit in list, adds random int to y value for random speeds (range depends on fruit type)
     for x in range(len(cantaloupe_coords)):
         watermelon_coords[x][1] += fruit_speed 
         cantaloupe_coords[x][1] += fruit_speed + 1
@@ -207,7 +215,7 @@ while running:
     #RESPAWN FRUITS: Check if fruit has left the screen, then teleport to a new spawn high above the screen
     for watermelon in watermelon_coords:
         if watermelon[1] >= HEIGHT + .5 * watermelon_radius:
-            watermelon[1] -= HEIGHT + 800 #amount of pause space between leaving/respawn
+            watermelon[1] -= HEIGHT + 800 #400: amount of pause space between leaving/respawn
     for cantaloupe in cantaloupe_coords:
          if cantaloupe[1] >= HEIGHT + .5 * cantaloupe_radius:
             cantaloupe[1] -= HEIGHT + 800
@@ -221,9 +229,7 @@ while running:
         if bomb[1] >= HEIGHT + .5 * bomb_radius:
             bomb[1] -= HEIGHT + 700
 
-
-
-    ## Pedram (LOSING HEALTH/HEARTS IF YOU MISS A FRUIT) ##  
+    ## Pedram (LOSING HEALTH/HEARTS IF A FRUIT IS NOT CLICKED) ##  
 
     for watermelon in watermelon_coords:
         if watermelon[1] == HEIGHT:
@@ -245,19 +251,21 @@ while running:
             hearts -= 1
             score = 0
    
-    ## Pedram (DRAWING THE HEARTS) ##
-   
-    def draw_heart(heart_x):
-        pygame.draw.polygon(screen, (255, 20, 20), ((heart_x, 72), (heart_x - 20, 50), (heart_x + 20, 50)))
-        pygame.draw.circle(screen, (255, 20, 20), (heart_x - 10, 40), 15)
-        pygame.draw.circle(screen, (255, 20, 20), (heart_x + 10, 40), 15)
-            
+
     ## Pedram (DRAWING THE HEARTS) ##
     
-    draw_heart(40)
-    draw_heart(550)
-    draw_heart(610)
+    if hearts == 3:
+        draw_3_hearts() 
+    elif hearts == 2:
+        draw_2_hearts()
+    elif hearts == 1:
+        draw_1_heart()
 
+    ## Pedram (HEARTS COUNTER IF THE SCORE IS LOWER THAN ZERO) ##
+    
+    if score < 0:
+        hearts -= 1
+        score = 0
 
     ## Pedram (SCORE DISPLAY/DRAWING) ##
     
@@ -280,4 +288,3 @@ while running:
 
 
 pygame.quit()
-
